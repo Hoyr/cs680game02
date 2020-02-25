@@ -14,8 +14,8 @@ namespace GameLib {
 		auto tileBelowHead = w.getTile(x, topOfHead);
 		auto tilePlayer = w.getTile(x, aboveFoot);
 		auto tileBelow = w.getTile(x, belowFoot);
-		if (tileAboveHead.solid())
-			return true;
+		//if (tileAboveHead.solid())
+		//	return true;
 		if (tileBelow.solid()) {
 			return true;
 		}
@@ -30,21 +30,14 @@ namespace GameLib {
 		}
 
 		// update acceleration
-		float volume = a.size.x * a.size.y * a.size.z;
-		float mass = a.physicsInfo.density * volume;
-		glm::vec3 acceleration = -w.worldPhysicsInfo.d / mass * a.velocity;
+		glm::vec3 acceleration=a.physicsInfo.a;
 		if (a.physicsInfo.v.y > 0.0f)
 			acceleration += 5.0f * w.worldPhysicsInfo.g;
 		else
 			acceleration += 3.0f * w.worldPhysicsInfo.g;
 
-		if (a.velocity.y != 0.0f && a.physicsInfo.v.y == 0.0f) {
-			a.physicsInfo.v.y = -2.0f * w.worldPhysicsInfo.g.y;
-		}
 		glm::vec3 vold = a.physicsInfo.v;
-		vold.x = a.velocity.x;
 		glm::vec3 vnew = vold + a.dt * acceleration;
-		// float vlength = glm::length(vnew);
 		a.physicsInfo.v = vnew;
 		a.position += 0.5f * (vold + vnew) * a.dt;
 
@@ -57,12 +50,12 @@ namespace GameLib {
 	void debugDrawSDF(Actor& a, Actor& b);
 
 	bool NewtonPhysicsComponent::collideDynamic(Actor& a, Actor& b) {
-		debugDrawSDF(a, b);
+		//debugDrawSDF(a, b);
 		return SimplePhysicsComponent::collideDynamic(a, b);
 	}
 
 	bool NewtonPhysicsComponent::collideStatic(Actor& a, Actor& b) {
-		debugDrawSDF(a, b);
+		//debugDrawSDF(a, b);
 		return SimplePhysicsComponent::collideStatic(a, b);
 	}
 

@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "DungeonActorComponent.hpp"
 #include "NewtonPhysicsComponent.hpp"
+#include "JumpingInputComponent.hpp"
 #include <gamelib_story_screen.hpp>
 
 constexpr int SOUND_BLIP = 6;
@@ -16,25 +17,9 @@ void Game::init() {
 
 	box2d.init();
 
-	audio.setVolume(0.2f);
-
-	PlaySoundCommand play0(0, false);
-	PlaySoundCommand play1(1, false);
-	PlaySoundCommand play2(2, false);
-	PlaySoundCommand play3(3, false);
-	PlayMusicCommand playMusic1(0);
-	PlayMusicCommand playMusic2(1);
-	PlayMusicCommand playMusic3(2);
-
 	input.back = &quitCommand;
-	input.key1 = &play0;
-	input.key2 = &play1;
-	input.key3 = &play2;
-	input.key4 = &play3;
-	input.key5 = &playMusic1;
-	input.key6 = &playMusic2;
-	input.key7 = &playMusic3;
 	input.start = &shakeCommand;
+	input.buttonA = &spaceCommand;
 	input.axis1X = &xaxisCommand;
 	input.axis1Y = &yaxisCommand;
 }
@@ -100,6 +85,7 @@ void Game::loadData() {
 void Game::initLevel(int levelNum) {
 	auto NewDungeonActor = []() { return std::make_shared<GameLib::DungeonActorComponent>(); };
 	auto NewInput = []() { return std::make_shared<GameLib::SimpleInputComponent>(); };
+	auto NewJumpingInput = []() { return std::make_shared<GameLib::JumpingInputComponent>(); };
 	auto NewRandomInput = []() { return std::make_shared<GameLib::RandomInputComponent>(); };
 	auto NewActor = []() { return std::make_shared<GameLib::ActorComponent>(); };
 	auto NewPhysics = []() { return std::make_shared<GameLib::SimplePhysicsComponent>(); };
@@ -112,7 +98,7 @@ void Game::initLevel(int levelNum) {
 	float speed = (float)graphics.getTileSizeX();
 
 	GameLib::ActorPtr actor;
-	actor = _makeActor(cx + 6, cy, 16, 2, NewInput(), NewDungeonActor(), NewPhysics(), NewGraphics());
+	actor = _makeActor(cx + 6, cy, 16, 2, NewJumpingInput(), NewDungeonActor(), NewNewtonPhysics(), NewGraphics());
 	world.addDynamicActor(actor);
 
 	actor = _makeActor(cx + 6, cy + 4.5f, 4, 32, nullptr, NewDungeonActor(), NewPhysics(), NewGraphics());
@@ -201,7 +187,7 @@ void Game::initLevel(int levelNum) {
 void Game::showIntro() {
 	// context.playMusicClip(0);
 	GameLib::StoryScreen ss;
-	ss.setBlipSound(SOUND_BLIP);
+	//ss.setBlipSound(SOUND_BLIP);
 	if (!ss.load("dialog.txt")) {
 		// do something default
 		ss.setFont(0, "URWClassico-Bold.ttf", 2.0f);
@@ -224,7 +210,7 @@ void Game::showIntro() {
 		ss.setImage(3, "dogbones.png", 20.0f, 20.0f);
 
 		ss.newFrame(10000, 4, 2, 4, 2, GameLib::ComposeColor(GameLib::FORESTGREEN, GameLib::AZURE, 3, 1, 2, 0), 0);
-		ss.frameHeader(1, "Sprite");
+		ss.frameHeader(1, "Vertical Arena");
 		ss.frameImage(2, { -1.0f, -1.0f }, { 1.0f, -1.0f }, { 1.0f, 1.2f }, { 0.0f, 0.0f });
 		// ss.frameImage(1, { 0.0f, -4.0f }, { 0.0f, 2.0f }, { 4.0f, 0.1f }, { 0.0f, 0.0f });
 		// ss.frameImage(1, { -6.0f, -2.0f }, { 6.0f, 2.0f }, { 4.0f, 0.1f }, { 0.0f, 720.0f });
@@ -232,67 +218,36 @@ void Game::showIntro() {
 		// ss.frameImageOps({ 0.2f, 0.8f }, { 0.0f, 0.0f }, { -0.0f, 0.0f }, { 1.0f, 1.0f, 0.0f, 0.0f });
 		ss.frameLine(
 			3,
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-			"dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-			"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
-			"fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-			"mollit anim id est laborum.");
+			"by Dain Harmon, cs680 studios a division of UAF Publishing");
 		ss.newFrame(5000, GameLib::BLACK, 3, 4, 2, GameLib::WHITE);
 		ss.frameImage(3, { -1.0f, -1.0f }, { 1.0f, -1.0f }, { 1.0f, 1.2f }, { 0.0f, 0.0f });
 		ss.frameLine(3, "Powered by the Amazing GameLib Engine");
 		ss.newFrame(20000, GameLib::BLACK, 3, GameLib::RED, 2, GameLib::YELLOW);
-		ss.frameHeader(0, "Simple Game");
+		ss.frameHeader(0, "Plot?");
 		ss.frameImage(0, { -6.0f, 6.0f }, { 6.0f, -1.0f }, { 10.0f, 0.2f }, { -117.0f, 3600.0f });
 		ss.frameImageOps({ 0.2f, 0.8f }, { -0.2f, 0.5f }, { 0.0f, 0.0f }, { 1.0f, 1.0f, 0.0f, 0.0f });
 		ss.frameLine(
 			3,
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-			"dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-			"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
-			"fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-			"mollit anim id est laborum.");
-		ss.frameLine(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		// ss.newFrame(1000, 4, 4, 4, 4, GameLib::RED);
-		// ss.newFrame(10000, 8, 2, 5, 9, GameLib::BLUE);
-		// ss.frameHeader(1, "Radical Game");
-		// ss.frameLine(4,
-		//	"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-		//	"dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-		//	"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
-		//	"fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-		//	"mollit anim id est laborum.");
-		// ss.frameLine(4, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		// ss.frameLine(4, "abcdefghijklmnopqrstuvwxyz");
-		// ss.frameLine(4, "`~!@#$%^&*()_+-=[]\\{}|;':\",./<>?");
-		// ss.newFrame(10000, 8, 2, 5, 9, GameLib::ROSE);
-		// ss.frameHeader(2, "Amazing Game");
-		// ss.frameLine(5,
-		//	"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-		//	"dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-		//	"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
-		//	"fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-		//	"mollit anim id est laborum.");
-		// ss.frameLine(5, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		// ss.frameLine(5, "abcdefghijklmnopqrstuvwxyz");
-		// ss.frameLine(5, "`~!@#$%^&*()_+-=[]\\{}|;':\",./<>?");
-		// ss.newFrame(10000, 8, 2, 5, 9, GameLib::GOLD);
-		// ss.frameHeader(0, "Cool Game");
-		// ss.frameLine(6,
-		//	"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-		//	"dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-		//	"ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
-		//	"fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
-		//	"mollit anim id est laborum.");
-		// ss.frameLine(4, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		// ss.frameLine(4, "abcdefghijklmnopqrstuvwxyz");
-		// ss.frameLine(4, "`~!@#$%^&*()_+-=[]\\{}|;':\",./<>?");
-		// ss.newFrame(0, 0, 0, 0, 0, 0);
+			"Seeking fame and fortune you left your old life behind. In the arena you have a chance to win both. Crush your foes!");
 	}
 	ss.play();
 }
 
 
-void Game::showWonEnding() {}
+void Game::showWonEnding() {
+	GameLib::StoryScreen ss;
+	ss.setBlipSound(SOUND_BLIP);
+	ss.setFont(0, "URWClassico-Bold.ttf", 2.0f);
+	ss.setFont(1, "URWClassico-Bold.ttf", 1.0f);
+	ss.setFontStyle(0, 1, ss.HALIGN_CENTER, ss.VALIGN_BOTTOM);
+	ss.setFontStyle(1, 0, ss.HALIGN_CENTER, ss.VALIGN_CENTER);
+	ss.newFrame(1000, 0, 0, 0, 0, GameLib::BLACK);
+	ss.newFrame(5000, GameLib::GREEN, 3, GameLib::BLUE, 2, GameLib::BLACK);
+	ss.frameHeader(0, "The End");
+	ss.frameLine(1, "You Win!");
+	ss.newFrame(0, 0, 0, 0, 0, GameLib::BLACK);
+	ss.play();
+}
 
 
 void Game::showLostEnding() {
@@ -305,7 +260,7 @@ void Game::showLostEnding() {
 	ss.newFrame(1000, 0, 0, 0, 0, GameLib::BLACK);
 	ss.newFrame(5000, GameLib::BLACK, 3, GameLib::RED, 2, GameLib::YELLOW);
 	ss.frameHeader(0, "The End");
-	ss.frameLine(1, "Oh! This game must not be finished!");
+	ss.frameLine(1, "You've lost!");
 	ss.newFrame(0, 0, 0, 0, 0, GameLib::BLACK);
 	ss.play();
 }

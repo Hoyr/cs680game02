@@ -67,6 +67,7 @@ protected:
 	QuitCommand quitCommand;
 	MovementCommand xaxisCommand;
 	MovementCommand yaxisCommand;
+	GameLib::InputCommand spaceCommand;
 
 	virtual void _debugKeys();
 
