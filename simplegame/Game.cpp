@@ -1,5 +1,5 @@
 #include "Game.hpp"
-#include "DungeonActorComponent.hpp"
+#include "ArenaActorComponent.hpp"
 #include "NewtonPhysicsComponent.hpp"
 #include "JumpingInputComponent.hpp"
 #include <gamelib_story_screen.hpp>
@@ -54,12 +54,12 @@ void Game::loadData() {
 	}
 	SDL_Texture* testPNG = context.loadImage("godzilla.png");
 	SDL_Texture* testJPG = context.loadImage("parrot.jpg");
-	graphics.setTileSize({ 32, 32 });
-	int spriteCount = context.loadTileset(0, 32, 32, "Tiles32x32.png");
+	graphics.setTileSize({ 8, 8 });
+	int spriteCount = context.loadTileset(0, 8, 8, "Arena.png");
 	if (!spriteCount) {
 		HFLOGWARN("Tileset not found");
 	}
-	context.loadTileset(GameLib::LIBXOR_TILESET32, 32, 32, "LibXORColors32x32.png");
+	//context.loadTileset(GameLib::LIBXOR_TILESET32, 32, 32, "LibXORColors32x32.png");
 
 	context.loadAudioClip(0, "starbattle-bad.wav");
 	context.loadAudioClip(1, "starbattle-dead.wav");
@@ -83,7 +83,7 @@ void Game::loadData() {
 
 
 void Game::initLevel(int levelNum) {
-	auto NewDungeonActor = []() { return std::make_shared<GameLib::DungeonActorComponent>(); };
+	auto NewArenaActor = []() { return std::make_shared<GameLib::ArenaActorComponent>(); };
 	auto NewInput = []() { return std::make_shared<GameLib::SimpleInputComponent>(); };
 	auto NewJumpingInput = []() { return std::make_shared<GameLib::JumpingInputComponent>(); };
 	auto NewRandomInput = []() { return std::make_shared<GameLib::RandomInputComponent>(); };
@@ -98,89 +98,15 @@ void Game::initLevel(int levelNum) {
 	float speed = (float)graphics.getTileSizeX();
 
 	GameLib::ActorPtr actor;
-	actor = _makeActor(cx + 6, cy, 16, 2, NewJumpingInput(), NewDungeonActor(), NewNewtonPhysics(), NewGraphics());
+	actor = _makeActor(cx + 6, cy, 16, 0, NewJumpingInput(), NewArenaActor(), NewNewtonPhysics(), NewGraphics());
+	actor->rename("Player");
 	world.addDynamicActor(actor);
 
-	actor = _makeActor(cx + 6, cy + 4.5f, 4, 32, nullptr, NewDungeonActor(), NewPhysics(), NewGraphics());
-	world.addStaticActor(actor);
-
-	actor = _makeActor(cx + 10, cy - 4, 4, 32, nullptr, NewDungeonActor(), NewPhysics(), NewGraphics());
-	world.addStaticActor(actor);
-
-	actor = _makeActor(16, 6, 4, 100, NewRandomInput(), NewDungeonActor(), NewPhysics(), NewGraphics());
+	actor = _makeActor(16, 6, 4, 8, NewRandomInput(), NewArenaActor(), NewNewtonPhysics(), NewGraphics());
 	world.addDynamicActor(actor);
 
-	actor = _makeActor(6, 6, 4, 101, NewRandomInput(), NewDungeonActor(), NewPhysics(), NewGraphics());
+	actor = _makeActor(6, 6, 4, 12, NewRandomInput(), NewArenaActor(), NewNewtonPhysics(), NewGraphics());
 	world.addDynamicActor(actor);
-
-	actor = _makeActor(10, 10, 4, 102, nullptr, NewDungeonActor(), NewPhysics(), NewGraphics());
-	world.addTriggerActor(actor);
-
-	actor = _makeActor(19, 10, 4, 103, nullptr, NewDungeonActor(), NewPhysics(), NewGraphics());
-	world.addTriggerActor(actor);
-
-	// Trace Curtis Actors
-
-	// Some extras
-	auto randomPlayer1 = _makeActor(
-		cx - 3,
-		cy,
-		speed,
-		1,
-		std::make_shared<GameLib::RandomInputComponent>(),
-		std::make_shared<GameLib::DungeonActorComponent>(),
-		std::make_shared<GameLib::TraceCurtisDynamicActorComponent>(),
-		std::make_shared<GameLib::SimpleGraphicsComponent>());
-	world.addDynamicActor(randomPlayer1);
-	randomPlayer1->rename("randomPlayer1");
-
-	auto randomPlayer2 = _makeActor(
-		cx - 6,
-		cy,
-		speed,
-		3,
-		std::make_shared<GameLib::RandomInputComponent>(),
-		std::make_shared<GameLib::DainNickJosephWorldCollidingActorComponent>(),
-		std::make_shared<GameLib::DainNickJosephWorldPhysicsComponent>(),
-		std::make_shared<GameLib::SimpleGraphicsComponent>());
-	world.addDynamicActor(randomPlayer2);
-	randomPlayer2->rename("randomPlayer2");
-
-	auto randomPlayer3 = _makeActor(
-		cx - 6,
-		cy - 3,
-		speed,
-		4,
-		std::make_shared<GameLib::RandomInputComponent>(),
-		std::make_shared<GameLib::ActorComponent>(),
-		std::make_shared<GameLib::SimplePhysicsComponent>(),
-		std::make_shared<GameLib::SimpleGraphicsComponent>());
-	world.addDynamicActor(randomPlayer3);
-	randomPlayer3->rename("randomPlayer3");
-
-	auto Tailon = _makeActor(
-		cx,
-		cy - 9,
-		speed,
-		300,
-		std::make_shared<GameLib::InputComponentForDynamic>(),
-		std::make_shared<GameLib::TailonsDynamicCollidingActorComponent>(),
-		std::make_shared<GameLib::TailonsDynamicPhysicsComponent>(),
-		std::make_shared<GameLib::SimpleGraphicsComponent>());
-	world.addDynamicActor(Tailon);
-	Tailon->rename("Tailon");
-
-	auto Tailon2 = _makeActor(
-		cx - 8,
-		cy - 9,
-		speed,
-		30,
-		std::make_shared<GameLib::InputComponentForStatic>(),
-		std::make_shared<GameLib::TailonsStaticCollidingActorComponent>(),
-		std::make_shared<GameLib::TailonsStaticPhysicsComponent>(),
-		std::make_shared<GameLib::SimpleGraphicsComponent>());
-	world.addStaticActor(Tailon2);
-	Tailon2->rename("Tailon2");
 }
 
 
@@ -328,13 +254,26 @@ bool Game::playGame() {
 		}
 
 		shake();
-		updateCamera();
+		//updateCamera();
 		drawWorld();
 		drawHUD();
 
 		context.swapBuffers();
 		frames++;
 		std::this_thread::yield();
+
+		unsigned int activeActors = 0;
+		for (auto actor : world.dynamicActors) {
+			if(actor->active)
+				activeActors++;
+			else if (actor->name()=="Player")
+				gameOver = true;
+		}
+		if (activeActors==1)
+		{
+			gameOver = true;
+			gameWon = true;
+		}
 	}
 
 	return gameWon;
@@ -363,7 +302,7 @@ void Game::drawWorld() {
 
 
 void Game::drawHUD() {
-	minchofont.draw(0, 0, "Hello, world!", GameLib::Red, GameLib::Font::SHADOWED);
+	/*minchofont.draw(0, 0, "Hello, world!", GameLib::Red, GameLib::Font::SHADOWED);
 	gothicfont.draw(
 		(int)graphics.getWidth(),
 		0,
@@ -397,7 +336,7 @@ void Game::drawHUD() {
 		(int)graphics.getHeight() - 2,
 		fpsstr,
 		GameLib::Gold,
-		GameLib::Font::HALIGN_RIGHT | GameLib::Font::VALIGN_BOTTOM | GameLib::Font::SHADOWED);
+		GameLib::Font::HALIGN_RIGHT | GameLib::Font::VALIGN_BOTTOM | GameLib::Font::SHADOWED);*/
 }
 
 

@@ -1,4 +1,4 @@
-#include "DungeonActorComponent.hpp"
+#include "ArenaActorComponent.hpp"
 #include <gamelib_locator.hpp>
 #include <gamelib_random.hpp>
 #include <limits>
@@ -9,7 +9,7 @@ namespace GameLib {
 	extern float SweptAABB(Actor& a, Actor& b, glm::vec3& normal);
 
 
-	void DungeonActorComponent::update(Actor& a, World& w) {
+	void ArenaActorComponent::update(Actor& a, World& w) {
 		// debugDraw(a);
 		// debugDrawSweptAABB(a);
 		if (a.isStatic()) {
@@ -36,7 +36,7 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::beginPlay(Actor& a) {
+	void ArenaActorComponent::beginPlay(Actor& a) {
 		if (a.isStatic()) {
 			staticInfo.horizontal = (random.rd() & 1) == 1;
 			staticInfo.movement = random.positive() * 5.0f + 2.0f;
@@ -45,7 +45,7 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::handleCollisionStatic(Actor& a, Actor& b) {
+	void ArenaActorComponent::handleCollisionStatic(Actor& a, Actor& b) {
 		return;
 		// backup a's position
 		glm::vec3 curPosition = a.position;
@@ -77,45 +77,6 @@ namespace GameLib {
 			glm::vec2 Pnew = P + vdir * touching;
 			a.position.x = Pnew.x;
 			a.position.y = Pnew.y;
-
-			//// collision, B is on bottom of A
-			//if (std::abs(touching) > 0.1f) {
-			//	HFLOGWARN("strange %f", d);
-			//}
-			//a.position = curPosition;
-			//a.velocity = curVelocity;
-			//if (std::abs(N.x) > std::abs(N.y)) {
-			//	a.position.x = Pnew.x;
-			//	a.velocity.x = 0.0f;
-			//	a.velocity.y = curVelocity.y;
-			//}
-			//if (std::abs(N.y) > std::abs(N.x)) {
-			//	a.velocity.x = curVelocity.x;
-			//	// a.velocity.y = 0.0f;
-			//	if (N.y > 0) {
-			//		float y1 = std::min(bbot, bbot+1);
-			//		float y2 = std::max(bbot, bbot+1);
-			//		a.position.y = clamp(Pnew.y, y1, y2);
-			//		a.velocity.y = -std::abs(v.y);
-			//	} else {
-			//		float y1 = std::min(a.position.y, btop - a.size.y);
-			//		float y2 = std::max(a.position.y, btop - a.size.y);
-			//		a.position.y = clamp(Pnew.y, y1, y2);
-			//		a.velocity.y = std::abs(v.y);
-			//	}
-			//}
-			//float lt = touching;
-			//touching = a.touching(b);
-			//if (touching < 0) {
-			//	HFLOGWARN("still touching %f from %f", touching, lt);
-			//}
-			//// a.velocity.x = 0.0f;
-			//// a.velocity.y = 0.0f;
-			//// if (std::abs(N.x) > 0.0001f)
-			////	a.velocity.x = -a.velocity.x;
-			//// if (std::abs(N.y) > 0.0001f)
-			////	a.velocity.y = -a.velocity.y;
-			//// a.velocity.y = 0.0f;
 		} else {
 			a.velocity = curVelocity;
 			a.position = curPosition;
@@ -148,7 +109,19 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::handleCollisionDynamic(Actor& a, Actor& b) {
+	void ArenaActorComponent::handleCollisionDynamic(Actor& a, Actor& b) {
+		glm::vec3 toOther=a.position-b.position;
+		glm::vec3 yaxis = {0,-1,0};
+		float angle = std::acos(glm::dot(toOther, yaxis)/toOther.length());
+		HFLOGDEBUG("%f",angle);
+		if (angle<=3.14159265359/2)
+		{
+			b.active=false;
+		}
+		else
+		{
+			a.active=false;
+		}
 		return;
 		// backup a's position
 		glm::vec3 curPosition = a.position;
@@ -162,6 +135,8 @@ namespace GameLib {
 			a.velocity = curVelocity;
 			return;
 		}
+		
+
 		a.position += a.velocity * collisionTime;
 		float timeLeft = 1.0f - collisionTime;
 		bool deflecting{ true };
@@ -181,7 +156,7 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::handleCollisionWorld(Actor& a, World& w) {
+	void ArenaActorComponent::handleCollisionWorld(Actor& a, World& w) {
 		return;
 		// determine whether to move the player up, or to the left
 		int ix1 = (int)(a.position.x);
@@ -258,7 +233,7 @@ namespace GameLib {
 				move = MOVE_DN;
 			break;
 		case BLOCKS_ABOVE: // top wall
-			move = MOVE_DN;
+			//move = MOVE_DN;
 			break;
 		case 4: // bottom left single block
 			if (fx1 > 0.99f)
@@ -352,16 +327,16 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::beginOverlap(Actor& a, Actor& b) {
+	void ArenaActorComponent::beginOverlap(Actor& a, Actor& b) {
 		HFLOGDEBUG("Actor '%d' is now overlapping trigger actor '%d'", a.getId(), b.getId());
 	}
 
 
-	void DungeonActorComponent::endOverlap(Actor& a, Actor& b) {
+	void ArenaActorComponent::endOverlap(Actor& a, Actor& b) {
 		HFLOGDEBUG("Actor '%d' is not overlapping trigger actor '%d'", a.getId(), b.getId());
 	}
 
-	void DungeonActorComponent::beginTriggerOverlap(Actor& a, Actor& b) {
+	void ArenaActorComponent::beginTriggerOverlap(Actor& a, Actor& b) {
 		HFLOGDEBUG("Trigger actor '%d' is now overlapped by actor '%d'", a.getId(), b.getId());
 		if (triggerInfo.t <= 0.0f) {
 			// if we are not already animating
@@ -375,7 +350,7 @@ namespace GameLib {
 	}
 
 
-	void DungeonActorComponent::endTriggerOverlap(Actor& a, Actor& b) {
+	void ArenaActorComponent::endTriggerOverlap(Actor& a, Actor& b) {
 		HFLOGDEBUG("Trigger actor '%d' is not overlapped by actor '%d'", a.getId(), b.getId());
 	}
 } // namespace GameLib

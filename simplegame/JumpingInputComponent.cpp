@@ -13,7 +13,7 @@ namespace GameLib {
             auto buttonA = Locator::getInput()->buttonA;
             if (buttonA->checkClear())
             {
-                actor.physicsInfo.a.y = -10;
+                actor.physicsInfo.a.y = -50;
             }
             else
             {

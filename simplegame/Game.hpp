@@ -42,7 +42,7 @@ protected:
 
 	static constexpr float MS_PER_UPDATE = 0.001f;
 
-	GameLib::Context context{ 1280, 720, GameLib::WindowDefault };
+	GameLib::Context context{ 320, 176, GameLib::WindowDefault };
 	GameLib::Audio audio;
 	GameLib::InputHandler input;
 	GameLib::Graphics graphics{ &context };

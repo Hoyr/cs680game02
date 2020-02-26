@@ -31,6 +31,7 @@ namespace GameLib {
 
 		// update acceleration
 		glm::vec3 acceleration=a.physicsInfo.a;
+		acceleration.x+=a.physicsInfo.v.x*-5;
 		if (a.physicsInfo.v.y > 0.0f)
 			acceleration += 5.0f * w.worldPhysicsInfo.g;
 		else

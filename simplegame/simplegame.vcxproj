@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DungeonActorComponent.cpp" />
+    <ClCompile Include="ArenaActorComponent.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="JumpingInputComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NewtonPhysicsComponent.cpp" />
   </ItemGroup>
@@ -28,9 +29,10 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArenaActorComponent.hpp" />
     <ClInclude Include="Commands.hpp" />
-    <ClInclude Include="DungeonActorComponent.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="JumpingInputComponent.hpp" />
     <ClInclude Include="NewtonPhysicsComponent.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -87,7 +89,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)..\vcpkg\installed\x64-windows\include;C:\Users\Hoyr\Documents\cs680game\github\cs487game\gamelib</IncludePath>
+    <IncludePath>C:\Users\Hoyr\Documents\cs680game\github\cs687game02\simplegame;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)..\vcpkg\installed\x64-windows\include;C:\Users\Hoyr\Documents\cs680game\github\cs487game\gamelib</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;$(SolutionDir)..\vcpkg\installed\x64-windows\lib;$(OutDir)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
